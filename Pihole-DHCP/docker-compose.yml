@@ -1,0 +1,44 @@
+version: "3.7"
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:v5.7
+    environment:
+      - TZ=Europe/Madrid #Your timezone. Timezone List: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+      - WEBPASSWORD=password #Password for admin user
+      - INTERFACE=eth0 #Physical Network Interface
+      - ServerIP=192.168.0.4 #Container IP Address (Must be under your network subnet)
+      - REV_SERVER_CIDR=192.168.0.0/24 #Your network subnet
+    networks:
+      lan:
+        ipv4_address: 192.168.0.4 #Container IP Address (Must be under your network subnet)
+    dns:
+      - 8.8.8.8 #Optional: Primary upstream DNS provider, default is google DNS
+      - 8.8.4.4 #Optional: Secondary upstream DNS provider, default is google DNS, no if only one DNS should used
+    #Creates persistent data: - host-path:dockercontainerpath
+    #Example below creates folders in the directory where you run docker-compose.yml file
+    volumes:  
+      - './docker/pihole/etc-pihole/:/etc/pihole/'
+      - './docker/pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
+    # Required for the DHCP server
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+
+networks:
+  lan:
+  driver: macvlan
+  driver_opts:
+    parent: eth0 #Physical Network Interface
+  ipam:
+    config:
+      - subnet: "192.168.0.0/24" #Your network subnet
+
+# Open this ports on your physical device
+# - "53/tcp"
+# - "53/udp"
+# - "67/udp"
+# - "80/tcp"
+# - "443/tcp"
+
+# More info at "https://hub.docker.com/r/pihole/pihole"
