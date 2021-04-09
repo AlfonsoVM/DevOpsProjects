@@ -1,0 +1,36 @@
+- hosts: rancher
+  become: true
+  become_user: root
+  tasks:
+    - name: Download docker installer
+      get_url:
+        url: https://releases.rancher.com/install-docker/19.03.sh
+        dest: /tmp/
+        mode: 0755
+
+    - name: Execute the 19.03.sh
+      shell: /tmp/19.03.sh
+
+    - name: Remove the 19.03.sh
+      file: path=/tmp/19.03.sh state=absent
+
+    - name: Add SSH to Docker Group
+      user:
+        name: ssh
+        groups: docker
+        append: yes
+
+    - name: Add Ubuntu to Docker Group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    - name: Reboot the machine
+      reboot:
+        msg: "Reboot initiated by Ansible for docker install"
+        connect_timeout: 5
+        reboot_timeout: 300
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+        test_command: uptime

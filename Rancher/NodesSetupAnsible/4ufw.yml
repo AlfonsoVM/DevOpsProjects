@@ -1,0 +1,209 @@
+- hosts: rancher
+  become: true
+  become_user: root
+  tasks:
+    - name: ensure ufw installed
+      apt:
+        name: ufw
+        update_cache: true
+      
+    - name: ufw deny incoming
+      ufw:
+        direction: incoming
+        proto: any
+        policy: deny
+      notify:
+      - reload ufw
+
+    - name: ufw allow outgoing
+      ufw:
+        direction: outgoing
+        proto: any
+        policy: allow
+      notify:
+      - reload ufw
+
+    - name: ufw allow SSH
+      ufw:
+        rule: limit
+        proto: tcp
+        port: 22
+      notify:
+      - reload ufw
+
+    - name: ufw allow HTTP
+      ufw:
+        rule: limit
+        proto: tcp
+        port: 80
+      notify:
+      - reload ufw
+
+    - name: ufw allow HTTPS
+      ufw:
+        rule: limit
+        proto: tcp
+        port: 443
+      notify:
+      - reload ufw
+
+    - name: ufw allow 8080
+      ufw:
+        rule: limit
+        proto: tcp
+        port: 8080
+      notify:
+      - reload ufw
+
+    - name: ufw allow Calico BGP Port (179/tcp)
+      ufw:
+        rule: allow
+        proto: tcp
+        port: 179
+      notify:
+      - reload ufw
+
+    - name: ufw allow Node driver Docker daemon TLS port (2376/tcp)
+      ufw:
+        rule: allow
+        proto: tcp
+        port: 2376
+      notify:
+      - reload ufw
+
+    - name: ufw allow etcd client requests (2379/tcp)
+      ufw:
+        rule: allow
+        proto: tcp
+        port: 2379
+      notify:
+      - reload ufw
+
+    - name: ufw allow etcd peer communication (2380/tcp)
+      ufw:
+        rule: allow
+        proto: tcp
+        port: 2380
+      notify:
+      - reload ufw
+
+    - name: ufw allow Canal/Flannel VXLAN overlay networking (8472/udp)
+      ufw:
+        rule: allow
+        proto: udp
+        port: 8472
+      notify:
+      - reload ufw
+
+    - name: ufw allow Flannel VXLAN overlay networking on Windows cluster (4789/udp)
+      ufw:
+        rule: allow
+        proto: udp
+        port: 4789
+      notify:
+      - reload ufw
+
+    - name: ufw allow Rancher webhook (8443/tcp)
+      ufw:
+        rule: allow
+        proto: tcp
+        port: 8443
+      notify:
+      - reload ufw
+
+    - name: ufw allow Canal/Flannel livenessProbe/readinessProbe (9099/tcp)
+      ufw:
+        rule: allow
+        proto: tcp
+        port: 9099
+      notify:
+      - reload ufw
+
+    - name: ufw allow Default port required by Monitoring to scrape metrics from Linux node-exporters (9100/tcp)
+      ufw:
+        rule: allow
+        proto: tcp
+        port: 9100
+      notify:
+      - reload ufw
+
+    - name: ufw allow Rancher webhook (9443/tcp)
+      ufw:
+        rule: allow
+        proto: tcp
+        port: 9443
+      notify:
+      - reload ufw
+
+    - name: ufw allow Default port required by Monitoring to scrape metrics from Windows node-exporters (9796/tcp)
+      ufw:
+        rule: allow
+        proto: tcp
+        port: 9796
+      notify:
+      - reload ufw
+
+    - name: ufw allow etcd peer communication (6443/tcp)
+      ufw:
+        rule: allow
+        proto: tcp
+        port: 6443
+      notify:
+      - reload ufw
+
+    - name: ufw allow Weave Port (6783/tcp)
+      ufw:
+        rule: allow
+        proto: tcp
+        port: 6783
+      notify:
+      - reload ufw
+
+    - name: ufw allow Weave UDP Ports (6783-6784/udp)
+      ufw:
+        rule: allow
+        proto: udp
+        port: '6783:6784'
+      notify:
+      - reload ufw
+
+    - name: ufw allow kubelet API (10250/tcp)
+      ufw:
+        rule: allow
+        proto: tcp
+        port: 10250
+      notify:
+      - reload ufw
+
+    - name: ufw allow Ingress controller livenessProbe/readinessProbe (10254/tcp)
+      ufw:
+        rule: allow
+        proto: tcp
+        port: 10254
+      notify:
+      - reload ufw
+
+    - name: ufw allow NodePort port range (30000-32767/tcp)
+      ufw:
+        rule: allow
+        proto: tcp
+        port: '30000:32767'
+      notify:
+      - reload ufw
+
+    - name: ufw allow NodePort port range (30000-32767/udp)
+      ufw:
+        rule: allow
+        proto: udp
+        port: '30000:32767'
+      notify:
+      - reload ufw
+
+    - name: enable ufw service
+      ufw:
+        state: enabled
+
+  handlers:
+    - name: reload ufw
+      ufw:
+        state: reloaded
